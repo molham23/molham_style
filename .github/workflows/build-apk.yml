@@ -1,0 +1,41 @@
+name: Build Molham Style APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download project
+        uses: actions/checkout@v4
+
+      - name: Extract Molham Style
+        run: |
+          unzip -q Molham-Style-GitHub.zip -d /tmp/molham
+          cp -R /tmp/molham/Molham-Style/. .
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.29.2'
+          channel: stable
+
+      - name: Create Android files
+        run: flutter create --platforms=android .
+
+      - name: Get packages
+        run: flutter pub get
+
+      - name: Build APK
+        run: flutter build apk --release
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Molham-Style-APK
+          path: build/app/outputs/flutter-apk/app-release.apk
